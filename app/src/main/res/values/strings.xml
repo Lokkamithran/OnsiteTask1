@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Timer</string>
     <string name="replay_button">Replay Button</string>
+    <string name="emptyTime">00:00:00</string>
 </resources>
