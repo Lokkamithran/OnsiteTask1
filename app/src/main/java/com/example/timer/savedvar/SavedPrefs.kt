@@ -15,6 +15,13 @@ class SavedPrefs {
             editor.putLong("newTimerSeconds", seconds)
             editor.apply()
         }
+        fun getNewTimerLength(context: Context): Long{
+            val sharedPreferences = context.getSharedPreferences("sharedPrefs", MODE_PRIVATE)
+            val hours = sharedPreferences.getLong("newTimerHours",0)
+            val minutes = sharedPreferences.getLong("newTimerMinutes",0)
+            val seconds = sharedPreferences.getLong("newTimerSeconds",0)
+            return (hours*60*60)+(minutes*60)+seconds
+        }
         fun setIsTimeDisplayed(context: Context, isTimeDisplayed: Boolean){
             val sharedPreferences = context.getSharedPreferences("sharedPrefs", MODE_PRIVATE)
             val editor = sharedPreferences.edit()

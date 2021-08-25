@@ -8,7 +8,7 @@ import com.example.timer.savedvar.SavedPrefs
 class TimerExpiredReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        //TODO: Show notification
+        Notification.showTimerExpired(context)
 
         SavedPrefs.setAlarmSetTime(context, 0)
         SavedPrefs.setTimerState(context, MainActivity.TimerState.Stopped)

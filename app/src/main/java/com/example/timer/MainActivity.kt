@@ -43,6 +43,7 @@ class MainActivity : AppCompatActivity() {
             alarmManager.cancel(pendingIntent)
             SavedPrefs.setAlarmSetTime(context, 0)
         }
+        var timeStr: String = "00:00:00"
     }
     private lateinit var timer: Any
     private var secondsRemaining = 0L
@@ -58,6 +59,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
 
         val metrics: DisplayMetrics = resources.displayMetrics
         width = metrics.widthPixels
@@ -118,9 +120,10 @@ class MainActivity : AppCompatActivity() {
 
         if(timerState==TimerState.Running){
             stopTimer()
-            setAlarm(this, nowSeconds, secondsRemaining)
+            val wakeupTime = setAlarm(this, nowSeconds, secondsRemaining)
+            Notification.showTimerRunning(this, wakeupTime)
         }else if(timerState==TimerState.Paused){
-            //Show notification
+            Notification.showTimerPaused(this)
         }
     }
 
@@ -129,6 +132,7 @@ class MainActivity : AppCompatActivity() {
         initTimer()
 
         cancelAlarm(this)
+        Notification.hideTimerNotification(this)
     }
     private fun initTimer(){
         timerState = SavedPrefs.getTimerState(this)
@@ -152,11 +156,11 @@ class MainActivity : AppCompatActivity() {
         millisRemaining = secondsRemaining*1000
         isTimeSet = SavedPrefs.getIsTimeDisplayed(this)
         if(isTimeSet) {
-            showAsIs(getNewTimerLength())
+            showAsIs(SavedPrefs.getNewTimerLength(this))
         }
     }
     private fun setNewTimerLength(){
-        timeSeconds = getNewTimerLength()
+        timeSeconds = SavedPrefs.getNewTimerLength(this)
     }
 
     private fun startTimer(timeInMillis: Long){
@@ -181,6 +185,7 @@ class MainActivity : AppCompatActivity() {
     private fun updateUI(){
         if(timeSeconds==0L || secondsRemaining == 0L) {
             timerText.text = getString(R.string.uiTime, "00", "00", "00")
+            timeStr = timerText.text.toString()
             progress_bar.setProgress(0,true)
         }else {
             val minutesRemaining = secondsRemaining / 60
@@ -196,6 +201,7 @@ class MainActivity : AppCompatActivity() {
                 if (secondsStr.length == 2) secondsStr
                 else "0$secondsStr"
             )
+            timeStr = timerText.text.toString()
             progress_bar.setProgress((secondsRemaining * 100 / (timeSeconds)).toInt(), true)
         }
     }
@@ -214,13 +220,6 @@ class MainActivity : AppCompatActivity() {
                 start_stopButton.setImageResource(R.drawable.ic_start)
             }
         }
-    }
-    private fun getNewTimerLength(): Long{
-        val sharedPreferences = getSharedPreferences("sharedPrefs", MODE_PRIVATE)
-        val hours = sharedPreferences.getLong("newTimerHours",0)
-        val minutes = sharedPreferences.getLong("newTimerMinutes",0)
-        val seconds = sharedPreferences.getLong("newTimerSeconds",0)
-        return (hours*60*60)+(minutes*60)+seconds
     }
     private fun showDialog(){
         val dialog = Dialog(this)
@@ -244,7 +243,7 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Input invalid or too large",Toast.LENGTH_SHORT).show()
             else {
                 SavedPrefs.setNewTimerLength(this, hour, minute, second)
-                showAsIs(getNewTimerLength())
+                showAsIs(SavedPrefs.getNewTimerLength(this))
             }
             dialog.dismiss()
         }
@@ -265,8 +264,11 @@ class MainActivity : AppCompatActivity() {
             if (secondsStr.length == 2) secondsStr
             else "0$secondsStr"
         )
+        timeStr = timerText.text.toString()
         if(second!=0L)
             progress_bar.setProgress(100, true)
+        else
+            progress_bar.setProgress(0,true)
     }
     private fun onTimerFinished(){
         Toast.makeText(this@MainActivity, "Countdown complete", Toast.LENGTH_SHORT).show()
