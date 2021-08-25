@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -36,6 +37,22 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.25"
         android:textSize="48sp"/>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/setTimeFAB"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/timerText"
+        app:layout_constraintBottom_toTopOf="@id/start_stopButton"
+        app:layout_constraintVertical_bias="0.8"
+        android:layout_marginBottom="16dp"
+        android:text="@string/set_time"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:padding="8dp"
+        app:icon="@drawable/ic_set_time"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/replayButton"

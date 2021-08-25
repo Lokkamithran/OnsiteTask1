@@ -7,9 +7,34 @@ import com.example.timer.MainActivity
 class SavedPrefs {
     companion object{
 
-        fun getNewTimerLength(context: Context): Long{
-            //placeHolder fun
-            return 1
+        fun setNewTimerLength(context: Context, hours: Long, minutes: Long, seconds: Long) {
+            val sharedPreferences = context.getSharedPreferences("sharedPrefs", MODE_PRIVATE)
+            val editor = sharedPreferences.edit()
+            editor.putLong("newTimerHours", hours)
+            editor.putLong("newTimerMinutes",minutes)
+            editor.putLong("newTimerSeconds", seconds)
+            editor.apply()
+        }
+        fun setIsTimeDisplayed(context: Context, isTimeDisplayed: Boolean){
+            val sharedPreferences = context.getSharedPreferences("sharedPrefs", MODE_PRIVATE)
+            val editor = sharedPreferences.edit()
+            editor.putBoolean("isTimeDisplayed", isTimeDisplayed)
+            editor.apply()
+        }
+        fun getIsTimeDisplayed(context: Context): Boolean{
+            val sharedPreferences = context.getSharedPreferences("sharedPrefs", MODE_PRIVATE)
+            return sharedPreferences.getBoolean("isTimeDisplayed", false)
+        }
+        fun setPreviousTimerSeconds(context: Context, seconds: Long) {
+            val sharedPreferences = context.getSharedPreferences("sharedPrefs", MODE_PRIVATE)
+            val editor = sharedPreferences.edit()
+            editor.putLong("previousTimerSeconds", seconds)
+            editor.apply()
+        }
+
+        fun getPreviousTimerSeconds(context: Context): Long {
+            val sharedPreferences = context.getSharedPreferences("sharedPrefs", MODE_PRIVATE)
+            return sharedPreferences.getLong("previousTimerSeconds", 0)
         }
 
         fun setSecondsRemaining(context: Context, millis: Long) {
