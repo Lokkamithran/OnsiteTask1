@@ -60,5 +60,18 @@ class SavedPrefs {
             val sharedPreferences = context.getSharedPreferences("sharedPrefs", MODE_PRIVATE)
             return MainActivity.TimerState.values()[sharedPreferences.getInt("timerState", 0)]
         }
+
+        fun setAlarmSetTime(context: Context, time: Long) {
+            val sharedPreferences = context.getSharedPreferences("sharedPrefs", MODE_PRIVATE)
+            val editor = sharedPreferences.edit()
+            editor.putLong("alarmSetTime", time)
+            editor.apply()
+        }
+
+        fun getAlarmSetTime(context: Context): Long {
+            val sharedPreferences = context.getSharedPreferences("sharedPrefs", MODE_PRIVATE)
+            return sharedPreferences.getLong("alarmSetTime",0)
+        }
+
     }
 }

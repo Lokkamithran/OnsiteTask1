@@ -1,6 +1,10 @@
 package com.example.timer
 
+import android.app.AlarmManager
 import android.app.Dialog
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.os.*
 import android.util.Log
 import android.view.Window
@@ -20,6 +24,26 @@ import android.util.DisplayMetrics
 
 class MainActivity : AppCompatActivity() {
 
+    companion object{
+        val nowSeconds: Long
+            get() = Calendar.getInstance().timeInMillis/1000
+        fun setAlarm(context: Context, nowSeconds: Long, secondsRemaining: Long): Long{
+            val wakeupTime = (nowSeconds+secondsRemaining)*1000
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val intent = Intent(context, TimerExpiredReceiver::class.java)
+            val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0)
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, wakeupTime, pendingIntent)
+            SavedPrefs.setAlarmSetTime(context, nowSeconds)
+            return wakeupTime
+        }
+        fun cancelAlarm(context: Context){
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val intent = Intent(context, TimerExpiredReceiver::class.java)
+            val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0)
+            alarmManager.cancel(pendingIntent)
+            SavedPrefs.setAlarmSetTime(context, 0)
+        }
+    }
     private lateinit var timer: Any
     private var secondsRemaining = 0L
     private var millisRemaining = 0L
@@ -89,12 +113,12 @@ class MainActivity : AppCompatActivity() {
 
         SavedPrefs.setPreviousTimerSeconds(this, timeSeconds)
         SavedPrefs.setIsTimeDisplayed(this, isTimeSet)
-        Log.d("mainActivity","This should be false the second time: $isTimeSet")
         SavedPrefs.setSecondsRemaining(this, secondsRemaining)
         SavedPrefs.setTimerState(this, timerState)
+
         if(timerState==TimerState.Running){
             stopTimer()
-            //Start background timer and show notification
+            setAlarm(this, nowSeconds, secondsRemaining)
         }else if(timerState==TimerState.Paused){
             //Show notification
         }
@@ -103,6 +127,8 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         initTimer()
+
+        cancelAlarm(this)
     }
     private fun initTimer(){
         timerState = SavedPrefs.getTimerState(this)
@@ -113,7 +139,13 @@ class MainActivity : AppCompatActivity() {
         else
             0
 
-        if(timerState==TimerState.Running)
+        val alarmSetTime = SavedPrefs.getAlarmSetTime(this)
+        if(alarmSetTime>0)
+            secondsRemaining -= (nowSeconds-alarmSetTime)
+
+        if(secondsRemaining<=0)
+            onTimerFinished()
+        else if(timerState==TimerState.Running)
             startTimer(secondsRemaining*1000)
         updateUI()
         updateButtons()
@@ -135,9 +167,7 @@ class MainActivity : AppCompatActivity() {
                 updateUI()
             }
             override fun onFinish() {
-                Toast.makeText(this@MainActivity, "Countdown complete", Toast.LENGTH_SHORT).show()
-                start_stopButton.setImageResource(R.drawable.ic_start)
-                timerState = TimerState.Stopped
+                onTimerFinished()
             }
         }
         (timer as CountDownTimer).start()
@@ -237,5 +267,10 @@ class MainActivity : AppCompatActivity() {
         )
         if(second!=0L)
             progress_bar.setProgress(100, true)
+    }
+    private fun onTimerFinished(){
+        Toast.makeText(this@MainActivity, "Countdown complete", Toast.LENGTH_SHORT).show()
+        updateButtons()
+        timerState = TimerState.Stopped
     }
 }
