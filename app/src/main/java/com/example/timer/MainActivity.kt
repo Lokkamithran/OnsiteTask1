@@ -248,7 +248,7 @@ class MainActivity : AppCompatActivity() {
             dialog.dismiss()
         }
         dialog.show()
-        dialog.window?.setLayout(5*width/6,height/3)
+        dialog.window?.setLayout(5*width/6,height/2)
     }
     private fun showAsIs(second: Long){
         val minutesRemaining = second / 60
